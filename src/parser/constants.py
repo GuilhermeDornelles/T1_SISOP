@@ -34,10 +34,17 @@ def brneg(coisa, value):
         
 def syscall(coisa, value):
 	if value == '0':
+        # chama funcao para terminar execucao do processo
+        # vai mandar ele pra lista de 'finalizados' / trocar o status na PCB
 		coisa.faz_isso()
 	if value == '1':
+        # chama funcao que vai printar na tela
+        # vai printar acc na tela e depois mandar o processo pra lista de bloqueados, deixando ele lá por 8/9/10 unidades de tempo
 		coisa.faz_isso1()
 	if value == '2':
+        # chama a funcao que vai pedir leitura do teclado
+        # vai pedir que o usuario insira qualquer valor inteiro via teclado, (duvida se nesse caso esse valor é salvo no acc? ou o que)
+        # e depois mandar P pra lista de bloqueados, deixando ele lá por 8/9/10 unidades de tempo 
 		coisa.faz_isso2()
 
 constants = {
