@@ -27,7 +27,8 @@ def main():
 	if not processes_list:
 		print("Please provide at least one process to execute.")
 		exit(1)
-
+	
+	# o parsing do json ta em progresso ainda
 	processes = []
 	for process in processes_list:
 		if algorithm is "RR":
