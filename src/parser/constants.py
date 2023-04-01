@@ -35,7 +35,7 @@ def brneg(coisa, value):
 def syscall(coisa, value):
 	if value == '0':
         # chama funcao para terminar execucao do processo
-        # vai mandar ele pra lista de 'finalizados' / trocar o status na PCB
+        # vai mandar ele pra lista de 'finalizados' e/ou trocar o status na PCB
 		coisa.faz_isso()
 	if value == '1':
         # chama funcao que vai printar na tela

@@ -1,0 +1,17 @@
+{
+  "algorithm": "RR",
+  "processes": [
+    {
+      "pid": 0,
+      "source_file": "./tests/prog1.txt",
+      "quantum": 10,
+      "priority": 1
+    },
+    {
+      "pid": 1,
+      "source_file": "./tests/prog2.txt",
+      "quantum": 15,
+      "priority": 0
+    }
+  ]
+}
