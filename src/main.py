@@ -4,18 +4,18 @@ from entities.Process import Process
 from entities.ProcessRR import ProcessRR
 from entities.ProcessSJF import ProcessSJF
 
-def parse_config_file(config_file : str) -> list[Process]:
+def parse_config_file(config_file : str) -> tuple[list[Process], str]:
 	with open(config_file) as config:
 		data = json.load(config)
 
-	algorithm = data.get("algorithm")
+	algorithm : str = data.get("algorithm")
 	if algorithm not in ["RR", "SJF"]:
 		print("Please provide a valid algorithm name on the config. Options: [RR / SJF]")
-		return None
+		return None, None
 	processes_raw = data.get('processes')
 	if not processes_raw:
 		print("Please provide at least one process to execute.")
-		return None
+		return None, algorithm
 
 	processes_list : list[Process] = []
 	for process in processes_raw:
@@ -26,16 +26,17 @@ def parse_config_file(config_file : str) -> list[Process]:
 		elif algorithm == "SJF":
 			new_process = ProcessSJF(pid=pid, source_file=file, execution_time=process.get("execution_time"))
 		processes_list.append(new_process)
-	return processes_list
+
+	return processes_list, algorithm
 
 def main():
 
-	processes_list = parse_config_file("config.json")
-	# processes_list = parse_config_file("config_SJF.json")
+	processes_list, algorithm = parse_config_file("config.json")
+	# processes_list, algorithm  = parse_config_file("config_SJF.json")
 	if not processes_list:
 		print("Unaccepted configurations on config file. Please try again.")
 		exit(1)
-
+	print(f"Algo is {algorithm}")
 	for process in processes_list:
 		parser = Parser(filename=process.pcb.source_file)
 
