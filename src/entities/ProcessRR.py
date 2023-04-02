@@ -1,13 +1,16 @@
 
-from src.entities.Process import Process
-from src.entities.enums.Priorities import Priorities
+from entities.Process import Process
+from entities.enums.Priorities import Priorities
 
 
 class ProcessRR(Process):
     priority : Priorities
     quantum : int
 
-    def __init__(self, priority, quantum):
-        super().__init__()
-        self.priority = priority
+    def __init__(self, pid : int, source_file : str, priority : int, quantum : int):
+        super().__init__(pid=pid, source_file=source_file)
+        self.priority = Priorities(priority)
         self.quantum = quantum
+    
+    def __str__(self):
+        return super().__str__() + f", priority={self.priority}, quantum={self.quantum}"

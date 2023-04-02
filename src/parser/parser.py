@@ -7,8 +7,6 @@ class AlgumaCoisa:
 		self.root = None
 		self.data = {}
 		self.flags = {}
-	
-	
 
 class Parser:
      
