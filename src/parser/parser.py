@@ -27,8 +27,6 @@ class Parser:
 				i+=1
 				line = lines[i].strip()
 				while line != '.endcode':
-					
-					print(line)
 
 					if ':' in line:
 						line = line.split(':')
@@ -46,18 +44,18 @@ class Parser:
 							next=None
 						)
 
-						if last is None:
-							self.alguma_coisa.root = mnemonic
-						else:
-							last.next = mnemonic
+					if last is None:
+						self.alguma_coisa.root = mnemonic
+					else:
+						last.next = mnemonic
 
-						if flag:
-							self.flags[flag] = mnemonic
-							flag = False
+					if flag:
+						self.alguma_coisa.flags[flag] = mnemonic
+						flag = False
 
-						last = mnemonic
-						i+=1
-						line = lines[i].strip()
+					last = mnemonic
+					i+=1
+					line = lines[i].strip()
 			i+=1
 					
 	@staticmethod

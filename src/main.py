@@ -1,10 +1,12 @@
 import json
+from pprint import pprint
+from typing import List
 from parser.parser import Parser
 from entities.Process import Process
 from entities.ProcessRR import ProcessRR
 from entities.ProcessSJF import ProcessSJF
 
-def parse_config_file(config_file : str) -> tuple[list[Process], str]:
+def parse_config_file(config_file : str):
 	with open(config_file) as config:
 		data = json.load(config)
 

@@ -1,4 +1,4 @@
-from entities.PCB import PCB
+from entities.Pcb import PCB
 from entities.enums.Priorities import Priorities
 
 
