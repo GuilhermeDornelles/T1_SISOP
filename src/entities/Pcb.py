@@ -8,6 +8,7 @@ class PCB:
     pc : int
     acc : int
     source_file : str # fiquei na duvida se deixamos aqui somente a string do path pro arquivo, ou ja o arquivo "aberto"
+    waiting_time: int
 
     def __init__(self, pid: int, source_file : str):
         self.pid = pid
@@ -15,9 +16,17 @@ class PCB:
         self.pc = 0
         self.acc = 0
         self.source_file = source_file
+        self.waiting_time = 0
 
     def __str__(self):
         return f"PCB(pid={self.pid}, state={self.state}, source_file={self.source_file}, PC={self.pc}, acc={self.acc})"
+
+    def blockProcess(self, waiting_time=8):
+        self.waiting_time = waiting_time
+        # TODO: Ver o que mais vai acontecer quando um processo for bloqueado
+        
+    def decreaseWaintingTime(self):
+        self.waiting_time -= 1
 
     def update(self, new_pc : int, new_acc : int):
         self.pc = new_pc
