@@ -1,5 +1,5 @@
 from parser.parser import Parser
-from entities.utils.config_parser import parse_config_file
+from utils.config_parser import parse_config_file
 
 def main():
 
