@@ -3,11 +3,13 @@
   "processes": [
     {
       "pid": 0,
+      "arrival_time": 0,
       "source_file": "./tests/prog1.txt",
       "execution_time": 20
     },
     {
       "pid": 1,
+      "arrival_time": 4,
       "source_file": "./tests/prog2.txt",
       "execution_time": 15
     }

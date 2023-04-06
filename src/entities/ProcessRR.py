@@ -7,8 +7,8 @@ class ProcessRR(Process):
     priority : Priorities
     quantum : int
 
-    def __init__(self, pid : int, source_file : str, priority : int, quantum : int):
-        super().__init__(pid=pid, source_file=source_file)
+    def __init__(self, pid : int, arrival_time : int, source_file : str, priority : int, quantum : int):
+        super().__init__(pid=pid, arrival_time=arrival_time, source_file=source_file)
         self.priority = Priorities(priority)
         self.quantum = quantum
     
