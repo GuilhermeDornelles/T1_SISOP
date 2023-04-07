@@ -1,16 +1,37 @@
-from entities.BlockedQueue import BlockedQueue
-from entities.ReadyQueue import ReadyQueue
+from entities.Process import Process
 
 class Scheduler:
-    blocked_queue: BlockedQueue
-    ready_queue: ReadyQueue
+    # Instante de tempo atual
+    clock : int
+    # Lista Constante de todos os processos
+    all_processes_list : list[Process]
+    # Lista dos processos que ainda faltam "chegar"
+    processes_to_arrive : list[Process]
+    exit_list : list[Process]
     
-    def __init__(self):
-        self.blocked_queue = BlockedQueue()
-        self.ready_queue = ReadyQueue()
-        
-    def switch_processes(): 
-        pass
+    def __init__(self, processes : list[Process]):
+        self.clock = -1
+        processes.sort(key = lambda p : p.arrival_time)
+        self.all_processes_list = processes
+        self.processes_to_arrive = processes
+        self.exit_list = []
+
+    def incrementClock(self):
+        self.clock += 1
+
+    def getArrivingProcesses(self) -> list[Process]:
+        arriving_processes = []
+        temp_list = self.processes_to_arrive
+        for process in temp_list:
+            if process.arrival_time <= self.clock:
+                arriving_processes.append(process)
+                self.processes_to_arrive.remove(process)
+            else:
+                return arriving_processes
+        return arriving_processes
     
-    def create_process():
-        pass
+    def exitProcess(self, process : Process):
+        self.exit_list.append(process)
+
+    def canScheduleEnd(self) -> bool:
+        return len(self.all_processes_list) == len(self.exit_list)

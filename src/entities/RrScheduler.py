@@ -1,8 +1,9 @@
-from Scheduler import Scheduler
 from entities.Queue import Queue
 from entities.Process import Process
 from entities.ProcessRR import ProcessRR
+from entities.Scheduler import Scheduler
 from entities.enums.Priorities import Priorities
+from entities.enums.States import States
 
 class RRScheduler(Scheduler):
     # Cada uma dessas é a fila de prontos separada pro prioridade; quem vai gerenciar elas vai ser o escalonador dai
@@ -10,14 +11,51 @@ class RRScheduler(Scheduler):
     MP_ready_queue : Queue #MediumPriority
     LP_ready_queue : Queue #LowPriority
     blocked_queue : Queue
-    running_p : Process
-    exit_list : list[ProcessRR]
+    running_p : ProcessRR
     
-    def __init__(self):
-        super.__init__()
+    def __init__(self, processes : list[Process]):
+        super().__init__(processes=processes)
+        self.HP_ready_queue = Queue()
+        self.MP_ready_queue = Queue()
+        self.LP_ready_queue = Queue()
+        self.blocked_queue = Queue()
         
-    def schedule(self, processes : list[ProcessRR]):
-        for process in processes:
+    def schedule(self):
+        current_processing_time = 0
+        while not self.canScheduleEnd():
+            current_processing_time += 1
+            print(self.processes_to_arrive)
+            # Incrementamos 1 no clock
+            self.incrementClock()
+            # Atualizando as filas de prontos com os processos chegando (no instante de tempo atual)
+            self.updateReadyQueues()
+
+            if self.isHigherPriorityProcessReady() or current_processing_time > running_p.quantum:
+                # TODO logica de manter o new_pc e new_acc pra atualizar a PCB desse running_p antes de trocar
+                running_p.pcb.update(new_pc=None, new_acc=None, new_state=States.READY)
+                running_p = self.switch_processes()
+                current_processing_time = 0
+
+            # else:
+                # se o mesmo processo continuar com o escalonador, roda normal
+
+            # TODO definir como vamos executar uma instrução desse P
+            # abrir o arquivo fonte
+            # executar a instrucao que está no PC
+            # se instrucao for I/O SYSCANLL 1 ou 2
+                # faz o I/O, atualizando o acc
+                # manda P pra fila de bloqueados (setando nele o time_to_wait)
+                # atualizar o acc (com base na instrucao)
+
+            
+
+            self.exitProcess(running_p)
+
+
+    def updateReadyQueues(self):
+        arriving_processes = self.getArrivingProcesses()
+        print(f"Ariving processes {arriving_processes}")
+        for process in arriving_processes:
             if process.priority == Priorities.HIGH_PRIORITY:
                 self.HP_ready_queue.push(process)
             elif process.priority == Priorities.MEDIUM_PRIORITY:
@@ -25,14 +63,17 @@ class RRScheduler(Scheduler):
             elif process.prioriry == Priorities.LOW_PRIORITY:
                 self.LP_ready_queue.push(process)
 
-        running_p = self.switch_processes()
-        # TODO definir como vamos executar uma instrução desse P
+    def isHigherPriorityProcessReady(self) -> bool:
+        current_priority = self.running_p.priority
+        if current_priority != Priorities.HIGH_PRIORITY and not self.HP_ready_queue.isEmpty():
+            return True
+        elif current_priority != Priorities.MEDIUM_PRIORITY and not self.MP_ready_queue.isEmpty():
+            return True
+        
+        # se chegar aqui é pq current é LP, ou HP, ou MP com HP vazio
+        return False
 
 
-    def sortByPriority():
-        # TODO
-        pass
-    
     def switch_processes(self) -> ProcessRR:
         # Retorna o proximo processo que deve executar
         if not self.HP_ready_queue.isEmpty():

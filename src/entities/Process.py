@@ -1,5 +1,4 @@
 from entities.Pcb import PCB
-from entities.enums.Priorities import Priorities
 
 
 class Process:
@@ -8,7 +7,7 @@ class Process:
     arrival_time : int
     pcb : PCB
 
-    def __init__(self, pid: int, arrival_time : int, source_file: str):
+    def __init__(self, pid : int, arrival_time : int, source_file : str):
         self.arrival_time = arrival_time
         self.pcb = PCB(pid, source_file)
     

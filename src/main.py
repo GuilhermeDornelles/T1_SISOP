@@ -1,10 +1,11 @@
 import os
 from parser.parser import Parser
+from entities.RrScheduler import RRScheduler
 from utils.config_parser import parse_config_file
 
 def main():
-	config_file = "config_SJF.json"
-	# config_file = "config.json"
+	# config_file = "config_SJF.json"
+	config_file = "config.json"
 
 	script_path = os.path.abspath(__file__)
 	file_path = os.path.join(os.path.dirname(script_path), config_file)
@@ -15,16 +16,19 @@ def main():
 		exit(1)
 
 	print(f"Algo is {algorithm}")
-	for process in processes_list:
-		parser = Parser(filename=process.pcb.source_file)
 
-		parser.parse()
+	escalonador_teste = RRScheduler(processes_list)
+	escalonador_teste.schedule()
+	# for process in processes_list:
+	# 	parser = Parser(filename=process.pcb.source_file)
 
-		current = parser.alguma_coisa.root
+	# 	parser.parse()
 
-		while current.next is not None:
-			print(current)
-			current = current.next
+	# 	current = parser.alguma_coisa.root
+
+	# 	while current.next is not None:
+	# 		print(current)
+	# 		current = current.next
 
 if __name__ == "__main__":
     main()

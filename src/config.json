@@ -3,13 +3,20 @@
   "processes": [
     {
       "pid": 0,
-      "arrival_time": 2,
+      "arrival_time": 11,
       "source_file": "./tests/prog1.txt",
       "quantum": 10,
       "priority": 1
     },
     {
       "pid": 1,
+      "arrival_time": 9,
+      "source_file": "./tests/prog2.txt",
+      "quantum": 15,
+      "priority": 0
+    },
+    {
+      "pid": 2,
       "arrival_time": 0,
       "source_file": "./tests/prog2.txt",
       "quantum": 15,
