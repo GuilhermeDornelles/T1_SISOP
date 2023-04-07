@@ -1,10 +1,15 @@
+import os
 from parser.parser import Parser
 from utils.config_parser import parse_config_file
 
 def main():
+	config_file = "config_SJF.json"
+	# config_file = "config.json"
 
-	# processes_list, algorithm = parse_config_file("config.json")
-	processes_list, algorithm  = parse_config_file("config_SJF.json")
+	script_path = os.path.abspath(__file__)
+	file_path = os.path.join(os.path.dirname(script_path), config_file)
+
+	processes_list, algorithm  = parse_config_file(file_path)
 	if not processes_list:
 		print("Unaccepted configurations on config file. Please try again.")
 		exit(1)
