@@ -68,9 +68,9 @@ class RRScheduler(Scheduler):
 
     def existHigherPriorityProcessReady(self) -> bool:
         current_priority = self.running_p.priority
-        if current_priority != Priorities.HIGH_PRIORITY and not self.HP_ready_queue.isEmpty():
+        if current_priority != Priorities.HIGH_PRIORITY and not self.HP_ready_queue.is_empty():
             return True
-        elif current_priority == Priorities.LOW_PRIORITY and not self.MP_ready_queue.isEmpty():
+        elif current_priority == Priorities.LOW_PRIORITY and not self.MP_ready_queue.is_empty():
             return True
 
         # se chegar aqui é pq current é LP, ou HP, ou MP com HP vazio
@@ -79,16 +79,14 @@ class RRScheduler(Scheduler):
 
     def switch_processes(self) -> ProcessRR:
         # Retorna o proximo processo que deve executar
-        if not self.HP_ready_queue.isEmpty():
+        if not self.HP_ready_queue.is_empty():
             return self.HP_ready_queue.pop()
-        elif not self.MP_ready_queue.isEmpty():
+        elif not self.MP_ready_queue.is_empty():
             return self.MP_ready_queue.pop()
-        elif not self.LP_ready_queue.isEmpty():
+        elif not self.LP_ready_queue.is_empty():
             return self.LP_ready_queue.pop()
         else:
             # Se chegarmos aqui é pq nao existe nenhum P pronto
             # TODO definir o que acontece nesse caso
             return None
         
-    
-    

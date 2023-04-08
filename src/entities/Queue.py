@@ -1,12 +1,12 @@
-from entities.Process import Process
+from Process import Process
 
 class Queue:
     processes: list[Process]
     
     def __init__(self):
         self.processes = []
-
-    def isEmpty(self) -> bool:
+            
+    def is_empty(self) -> bool:
         return len(self.processes) == 0
 
     def push(self, process : Process):
@@ -14,3 +14,6 @@ class Queue:
 
     def pop(self) -> Process:
         return self.processes.pop(0)
+    
+    def sort_blocked_queue_by_priority(self):
+        self.processes.sort(key= lambda obj: (-obj.get_priority_as_num(), obj.pcb.time_to_wait))
