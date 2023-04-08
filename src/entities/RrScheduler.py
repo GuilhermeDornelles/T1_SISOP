@@ -30,6 +30,8 @@ class RRScheduler(Scheduler):
             # Atualizando as filas de prontos com os processos chegando (no instante de tempo atual)
             self.updateReadyQueues(curr_time=self.clock)
 
+            self.update_blocked_queue()
+
             if self.running_p is None: # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
                 self.running_p = self.switch_processes()
                 current_processing_time = 1
@@ -54,6 +56,22 @@ class RRScheduler(Scheduler):
             self.exitProcess(self.running_p)
             self.running_p = None
 
+    def unblock_process(self, process: Process):
+        process.pcb.unblockProcess()
+        # TODO
+        # Implementar a lógica de inserir o processo em sua devida ready queue
+        # Verificar como vai ser feita a parte de stats dos tempos, por exemplo:
+        # O processo foi desbloqueado antes de acabar o time_to_wait, então na
+        # stat vai ser adicionado o tempo real que ficou bloqueado
+
+    def update_blocked_queue(self):
+        self.blocked_queue.sort_blocked_queue_by_priority()
+        for process in self.blocked_queue.processes:
+            if(process.pcb.time_to_wait > 0):
+                process.pcb.decreaseWaintingTime()
+            else:
+                self.unblock_process(process)
+                
 
     def updateReadyQueues(self, curr_time : int):
         arriving_processes = self.getArrivingProcesses()
