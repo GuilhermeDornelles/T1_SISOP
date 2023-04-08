@@ -56,6 +56,15 @@ class Parser:
 					last = mnemonic
 					i+=1
 					line = lines[i].strip()
+					
+			if line == '.data':
+				i+=1
+				line = lines[i].strip()
+				while line != '.enddata':
+					variable_name = line.split(' ')[0]
+					variable_value = line.split(' ')[1]
+					self.alguma_coisa.data[variable_name] = variable_value
+
 			i+=1
 					
 	@staticmethod
