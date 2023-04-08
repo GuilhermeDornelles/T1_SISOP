@@ -25,7 +25,6 @@ class RRScheduler(Scheduler):
         current_processing_time = 0
         while not self.canScheduleEnd():
             current_processing_time += 1
-            print(self.processes_to_arrive)
             # Incrementamos 1 no clock
             self.incrementClock()
             # Atualizando as filas de prontos com os processos chegando (no instante de tempo atual)
@@ -58,7 +57,6 @@ class RRScheduler(Scheduler):
 
     def updateReadyQueues(self, curr_time : int):
         arriving_processes = self.getArrivingProcesses()
-        print(f"Ariving processes {arriving_processes}")
         for process in arriving_processes:
             process.pcb.initProcess(curr_time)
             if process.priority == Priorities.HIGH_PRIORITY:

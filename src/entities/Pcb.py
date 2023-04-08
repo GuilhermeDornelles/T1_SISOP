@@ -16,15 +16,15 @@ class PCB:
         self.source_file = source_file
         self.time_stats = TimespentStats()
         self.state = None
+        self.pc = 0
+        self.acc = 0
+        self.time_to_wait = 0
 
     def __str__(self):
         return f"PCB(pid={self.pid}, state={self.state}, source_file={self.source_file}, PC={self.pc}, acc={self.acc})"
     
     def initProcess(self, instant_time : int):
         self._initState(States.READY, instant_time)
-        self.pc = 0
-        self.acc = 0
-        self.time_to_wait = 0
 
     def blockProcess(self, time_to_wait=8):
         self.time_to_wait = time_to_wait
