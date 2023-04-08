@@ -15,6 +15,7 @@ class RRScheduler(Scheduler):
     
     def __init__(self, processes : list[Process]):
         super().__init__(processes=processes)
+        self.running_p = None
         self.HP_ready_queue = Queue()
         self.MP_ready_queue = Queue()
         self.LP_ready_queue = Queue()
@@ -28,14 +29,16 @@ class RRScheduler(Scheduler):
             # Incrementamos 1 no clock
             self.incrementClock()
             # Atualizando as filas de prontos com os processos chegando (no instante de tempo atual)
-            self.updateReadyQueues()
+            self.updateReadyQueues(curr_time=self.clock)
 
-            if self.isHigherPriorityProcessReady() or current_processing_time > running_p.quantum:
-                # TODO logica de manter o new_pc e new_acc pra atualizar a PCB desse running_p antes de trocar
-                running_p.pcb.update(new_pc=None, new_acc=None, new_state=States.READY)
-                running_p = self.switch_processes()
-                current_processing_time = 0
-
+            if self.running_p is None: # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
+                self.running_p = self.switch_processes()
+                current_processing_time = 1
+            elif self.existHigherPriorityProcessReady() or (current_processing_time > self.running_p.quantum):
+                # TODO logica de manter o new_pc e new_acc no loop pra atualizar a PCB desse running_p antes de trocar
+                self.running_p.pcb.update(new_pc=None, new_acc=None, new_state=States.READY)
+                self.running_p = self.switch_processes()
+                current_processing_time = 1
             # else:
                 # se o mesmo processo continuar com o escalonador, roda normal
 
@@ -48,14 +51,16 @@ class RRScheduler(Scheduler):
                 # atualizar o acc (com base na instrucao)
 
             
+            # se instrucaso for SYSCALL 0,
+            self.exitProcess(self.running_p)
+            self.running_p = None
 
-            self.exitProcess(running_p)
 
-
-    def updateReadyQueues(self):
+    def updateReadyQueues(self, curr_time : int):
         arriving_processes = self.getArrivingProcesses()
         print(f"Ariving processes {arriving_processes}")
         for process in arriving_processes:
+            process.pcb.initProcess(curr_time)
             if process.priority == Priorities.HIGH_PRIORITY:
                 self.HP_ready_queue.push(process)
             elif process.priority == Priorities.MEDIUM_PRIORITY:
@@ -63,13 +68,13 @@ class RRScheduler(Scheduler):
             elif process.prioriry == Priorities.LOW_PRIORITY:
                 self.LP_ready_queue.push(process)
 
-    def isHigherPriorityProcessReady(self) -> bool:
+    def existHigherPriorityProcessReady(self) -> bool:
         current_priority = self.running_p.priority
         if current_priority != Priorities.HIGH_PRIORITY and not self.HP_ready_queue.isEmpty():
             return True
-        elif current_priority != Priorities.MEDIUM_PRIORITY and not self.MP_ready_queue.isEmpty():
+        elif current_priority == Priorities.LOW_PRIORITY and not self.MP_ready_queue.isEmpty():
             return True
-        
+
         # se chegar aqui é pq current é LP, ou HP, ou MP com HP vazio
         return False
 
