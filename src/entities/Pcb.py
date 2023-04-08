@@ -1,5 +1,5 @@
-from entities.enums.States import States
-from entities.TimespentStats import TimespentStats
+from enums.States import States
+from TimespentStats import TimespentStats
 
 
 class PCB:
@@ -26,9 +26,9 @@ class PCB:
     def initProcess(self, instant_time : int):
         self._initState(States.READY, instant_time)
 
-    def blockProcess(self, time_to_wait=8):
+    def blockProcess(self, instant_time, time_to_wait=8):
         self.time_to_wait = time_to_wait
-        self._updateState(States.BLOCKED)
+        self._updateState(States.BLOCKED, instant_time)
         # TODO: Ver o que mais vai acontecer quando um processo for bloqueado
 
     def unblockProcess(self, new_state=States.READY):
@@ -82,3 +82,5 @@ class PCB:
         # finalmente trocamos o status atual pro novo
         self.state = new_state
 
+    def __str__(self):
+        return f"PCB(pid={self.pid}, state={self.state}, source_file={self.source_file}, PC={self.pc}, acc={self.acc}, time_to_wait={self.time_to_wait})"

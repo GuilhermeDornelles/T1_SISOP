@@ -1,4 +1,4 @@
-from entities.Pcb import PCB
+from Pcb import PCB
 
 
 class Process:
