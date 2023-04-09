@@ -1,30 +1,28 @@
 from enums.States import States
 from TimespentStats import TimespentStats
+from parser.models.Program import Program
+from parser.parser import Parser
+from parser.models import Mnemonic
 
 
 class PCB:
-    state : States
-    pid : int
-    pc : int
-    acc : int
-    source_file : str # fiquei na duvida se deixamos aqui somente a string do path pro arquivo, ou ja o arquivo "aberto"
+    state: States
+    pid: int
+    source_file: str
+    program: Program
     time_to_wait: int
-    time_stats = TimespentStats
+    time_stats: TimespentStats
 
     def __init__(self, pid: int, source_file : str):
         self.pid = pid
         self.source_file = source_file
+        self.program = Parser(source_file).parse()
         self.time_stats = TimespentStats()
         self.state = None
-        self.pc = 0
-        self.acc = 0
-        self.time_to_wait = 0
 
-    def __str__(self):
-        return f"PCB(pid={self.pid}, state={self.state}, source_file={self.source_file}, PC={self.pc}, acc={self.acc})"
-    
     def initProcess(self, instant_time : int):
         self._initState(States.READY, instant_time)
+        self.time_to_wait = 0
 
     def blockProcess(self, instant_time, time_to_wait=8):
         self.time_to_wait = time_to_wait
@@ -37,10 +35,10 @@ class PCB:
         self._updateState(new_state)
         # TODO: Ver o que mais vai acontecer quando um processo for desbloqueado
 
-    def decreaseWaintingTime(self):
+    def decreaseWaitingTime(self):
         self.time_to_wait -= 1
 
-    def update(self, new_pc : int, new_acc : int, new_state = States.READY):
+    def update(self, new_pc : Mnemonic, new_acc : int, new_state = States.READY):
         self.pc = new_pc
         self.acc = new_acc
         self._updateState(new_state)
@@ -83,4 +81,4 @@ class PCB:
         self.state = new_state
 
     def __str__(self):
-        return f"PCB(pid={self.pid}, state={self.state}, source_file={self.source_file}, PC={self.pc}, acc={self.acc}, time_to_wait={self.time_to_wait})"
+        return f"PCB(pid={self.pid}, state={self.state}, source_file={self.source_file}, PC={self.program.pc}, acc={self.program.acc}, time_to_wait={self.time_to_wait})"

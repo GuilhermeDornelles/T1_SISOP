@@ -1,21 +1,16 @@
+from .models.Program import Program
 from .models.Mnemonic import Mnemonic
 from .constants import constants
 
-class AlgumaCoisa:
-    
-	def __init__(self):
-		self.root = None
-		self.data = {}
-		self.flags = {}
 
 class Parser:
      
 	def __init__(self, filename: str):
 		self.filename = filename
-		self.alguma_coisa = None
+		self.program = None
 	
 	def parse(self):
-		self.alguma_coisa = AlgumaCoisa()
+		self.program = Program()
 		lines = Parser._read_file_in_lines(self.filename)
 
 		last = None
@@ -30,7 +25,7 @@ class Parser:
 
 					if ':' in line:
 						line = line.split(':')
-						self.alguma_coisa.flags[line[0]] = None
+						self.program.flags[line[0]] = None
 						flag = line[0]
 					else:
 						# caso for comando normal
@@ -45,12 +40,12 @@ class Parser:
 						)
 
 					if last is None:
-						self.alguma_coisa.root = mnemonic
+						self.program.pc = mnemonic
 					else:
 						last.next = mnemonic
 
 					if flag:
-						self.alguma_coisa.flags[flag] = mnemonic
+						self.program.flags[flag] = mnemonic
 						flag = False
 
 					last = mnemonic
@@ -63,9 +58,11 @@ class Parser:
 				while line != '.enddata':
 					variable_name = line.split(' ')[0]
 					variable_value = line.split(' ')[1]
-					self.alguma_coisa.data[variable_name] = variable_value
+					self.program.data[variable_name] = variable_value
 
 			i+=1
+
+		return self.program
 					
 	@staticmethod
 	def _read_file_in_lines(filename: str):
