@@ -16,10 +16,10 @@ class Scheduler:
         self.processes_to_arrive = processes
         self.exit_list = []
 
-    def incrementClock(self):
+    def increment_clock(self):
         self.clock += 1
 
-    def getArrivingProcesses(self) -> list[Process]:
+    def get_arriving_processes(self) -> list[Process]:
         arriving_processes = []
         temp_list = self.processes_to_arrive
         for process in temp_list:
@@ -30,8 +30,8 @@ class Scheduler:
                 return arriving_processes
         return arriving_processes
     
-    def exitProcess(self, process : Process):
+    def exit_process(self, process : Process):
         self.exit_list.append(process)
 
-    def canScheduleEnd(self) -> bool:
+    def can_schedule_end(self) -> bool:
         return len(self.all_processes_list) == len(self.exit_list)

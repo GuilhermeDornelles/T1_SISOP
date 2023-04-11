@@ -1,6 +1,6 @@
 
-from Process import Process
-from enums.Priorities import Priorities
+from entities.Process import Process
+from entities.enums.Priorities import Priorities
 
 
 class ProcessRR(Process):

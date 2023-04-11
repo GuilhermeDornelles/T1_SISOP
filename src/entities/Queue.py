@@ -1,4 +1,5 @@
-from Process import Process
+from entities.Process import Process
+
 
 class Queue:
     processes: list[Process]
@@ -16,4 +17,4 @@ class Queue:
         return self.processes.pop(0)
     
     def sort_blocked_queue_by_priority(self):
-        self.processes.sort(key= lambda obj: (-obj.get_priority_as_num(), obj.pcb.time_to_wait))
+        self.processes.sort(key = lambda process: (-process.get_priority_as_num(), process.pcb.time_to_wait))

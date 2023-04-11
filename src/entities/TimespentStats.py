@@ -51,11 +51,11 @@ class TimespentStats:
         self.time_blocked[-1] = (enter, time)
 
     def defineFinalTimes(self):
-        self.final_time_ready = self.auxCalculusFinalTime(field=self.time_ready)
-        self.final_time_running = self.auxCalculusFinalTime(field=self.time_running)
-        self.final_time_blocked = self.auxCalculusFinalTime(field=self.time_blocked)
+        self.final_time_ready = self._auxCalculusFinalTime(field=self.time_ready)
+        self.final_time_running = self._auxCalculusFinalTime(field=self.time_running)
+        self.final_time_blocked = self._auxCalculusFinalTime(field=self.time_blocked)
 
-    def auxCalculusFinalTime(self, field : list[tuple[int, int]]) -> int:
+    def _auxCalculusFinalTime(self, field : list[tuple[int, int]]) -> int:
         soma = 0
         for item in field:
             enter_time, exit_time = item

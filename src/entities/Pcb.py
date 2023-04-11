@@ -1,5 +1,5 @@
-from enums.States import States
-from TimespentStats import TimespentStats
+from entities.enums.States import States
+from entities.TimespentStats import TimespentStats
 from parser.models.Program import Program
 from parser.parser import Parser
 from parser.models import Mnemonic
@@ -29,13 +29,13 @@ class PCB:
         self._updateState(States.BLOCKED, instant_time)
         # TODO: Ver o que mais vai acontecer quando um processo for bloqueado
 
-    def unblockProcess(self, new_state=States.READY):
+    def unblockProcess(self, instant_time : int, new_state=States.READY, ):
         self.time_to_wait = 0
         # Novo estado pode ser READY, ou outro; por isso pode receber por parametro
-        self._updateState(new_state)
+        self._updateState(new_state=new_state, instant_time=instant_time)
         # TODO: Ver o que mais vai acontecer quando um processo for desbloqueado
 
-    def decreaseWaitingTime(self):
+    def decreaseTimeToWait(self):
         self.time_to_wait -= 1
 
     def update(self, new_pc : Mnemonic, new_acc : int, new_state = States.READY):

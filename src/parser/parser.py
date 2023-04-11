@@ -17,7 +17,6 @@ class Parser:
 		flag = False
 		for i in range(len(lines)):
 			line = lines[i].strip()
-
 			if line == '.code':
 				i+=1
 				line = lines[i].strip()
@@ -59,11 +58,13 @@ class Parser:
 					variable_name = line.split(' ')[0]
 					variable_value = line.split(' ')[1]
 					self.program.data[variable_name] = variable_value
+					i+=1
+					line = lines[i].strip()
 
 			i+=1
 
 		return self.program
-					
+
 	@staticmethod
 	def _read_file_in_lines(filename: str):
 		with open(filename, 'r') as file:
