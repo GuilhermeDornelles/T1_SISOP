@@ -1,62 +1,48 @@
+def next_step(scheduler):
+    scheduler.pc = scheduler.pc.next
 
-def nextStep(program):
-    program.pc = program.pc.next
+def add(scheduler, value):
+    scheduler.acc += value
+    next_step(scheduler)
 
-def add(program, value):
-    program.acc += value
-    nextStep(program)
+def sub(scheduler, value):
+    scheduler.acc -= value
+    next_step(scheduler)
 
-def sub(program, value):
-    program.acc -= value
-    nextStep(program)
+def mult(scheduler, value):
+    scheduler.acc *= value
+    next_step(scheduler)
 
-def mult(program, value):
-    program.acc *= value
-    nextStep(program)
-    
-def div(program, value):
-    program.acc /= value
-    nextStep(program)
+def div(scheduler, value):
+    scheduler.acc /= value
+    next_step(scheduler)
 
-def load(program, value):
-    program.acc = value
-    nextStep(program)
+def load(scheduler, value):
+    scheduler.acc = value
+    next_step(scheduler)
 
-def store(program, value):
-    program.data[value] = program.acc
-    nextStep(program)
-    
-def brany(program, value):
-    program.pc = program.flags[value]
-    
-def brpos(program, value):
-    if program.acc > 0:
-    	program.pc = program.flags[value]
+def store(scheduler, value):
+    scheduler.data[value] = scheduler.acc
+    next_step(scheduler)
 
-def brzero(program, value):
-    if program.acc == 0:
-    	program.pc = program.flags[value]
-        
-def brneg(program, value):
-    if program.acc < 0:
-    	program.pc = program.flags[value]
-        
-#TODO: como passar comando de volta pra PCB pra encerrar ou esperar       
-def syscall(program, value):
-    if value == '0':
-        # chama funcao para terminar execucao do processo
-        # vai mandar ele pra lista de 'finalizados' e/ou trocar o status na PCB
-        nextStep(program)
-    if value == '1':
-        # chama funcao que vai printar na tela
-        # vai printar acc na tela e depois mandar o processo pra lista de bloqueados, deixando ele lá por 8/9/10 unidades de tempo
-        nextStep(program)
-    if value == '2':
-        # chama a funcao que vai pedir leitura do teclado
-        # vai pedir que o usuario insira qualquer valor inteiro via teclado, (duvida se nesse caso esse valor é salvo no acc? ou o que)
-        # e depois mandar P pra lista de bloqueados, deixando ele lá por 8/9/10 unidades de tempo 
-        nextStep(program)
+def brany(scheduler, value):
+    scheduler.pc = scheduler.flags[value]
 
+def brpos(scheduler, value):
+    if scheduler.acc > 0:
+    	scheduler.pc = scheduler.flags[value]
+
+def brzero(scheduler, value):
+    if scheduler.acc == 0:
+    	scheduler.pc = scheduler.flags[value]
+
+def brneg(scheduler, value):
+    if scheduler.acc < 0:
+    	scheduler.pc = scheduler.flags[value]
+
+def syscall(scheduler, value):
+    scheduler.syscall(value)
+    next_step(scheduler)
 
 constants = {
     'ADD': add,

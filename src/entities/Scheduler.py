@@ -35,3 +35,20 @@ class Scheduler:
 
     def can_schedule_end(self) -> bool:
         return len(self.all_processes_list) == len(self.exit_list)
+
+    def syscall(self, value):
+        match value:
+            case '0':
+                # TODO
+                # Dar exit no processo
+                pass
+            case '1':
+                # TODO
+                # printar acc
+                # mandar pra blocked
+                pass
+            case '2':
+                # TODO
+                # Receber input
+                # mandar pra blocked
+                pass
