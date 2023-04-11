@@ -8,6 +8,8 @@ from parser.models import Mnemonic
 class PCB:
     state: States
     pid: int
+    pc : Mnemonic
+    acc: int
     source_file: str
     program: Program
     time_to_wait: int
@@ -15,8 +17,10 @@ class PCB:
 
     def __init__(self, pid: int, source_file : str):
         self.pid = pid
+        self.acc = 0
         self.source_file = source_file
         self.program = Parser(source_file).parse()
+        self.pc = self.program.root
         self.time_stats = TimespentStats()
         self.state = None
 

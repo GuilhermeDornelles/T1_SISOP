@@ -23,6 +23,8 @@ class RRScheduler(Scheduler):
         
     def schedule(self):
         current_processing_time = 0
+        acc_atual = 0
+        pc_atual = None
         while not self.can_schedule_end():
             current_processing_time += 1
             # Incrementamos 1 no clock
@@ -35,17 +37,22 @@ class RRScheduler(Scheduler):
             if self.running_p is None: # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
                 self.running_p = self.switch_processes()
                 current_processing_time = 1
+                acc_atual = self.running_p.pcb.acc
+                pc_atual = self.running_p.pcb.pc
             elif self.exist_higher_priority_process_ready() or (current_processing_time > self.running_p.quantum):
                 # TODO logica de manter o new_pc e new_acc no loop pra atualizar a PCB desse running_p antes de trocar
-                self.running_p.pcb.update(new_pc=None, new_acc=None, new_state=States.READY)
+                self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, new_state=States.READY)
                 self.running_p = self.switch_processes()
                 current_processing_time = 1
-            # else:
-                # se o mesmo processo continuar com o escalonador, roda normal
-
+                pc_atual = self.running_p.pcb.pc
+                acc_atual = self.running_p.pcb.acc
+            
+            # se o mesmo processo continuar com o escalonador, roda normal
             # TODO definir como vamos executar uma instrução desse P
-            # abrir o arquivo fonte
+            
             # executar a instrucao que está no PC
+            pc_atual, acc_atual = pc_atual.function(pc_atual, acc_atual)
+
             # se instrucao for I/O SYSCANLL 1 ou 2
                 # faz o I/O, atualizando o acc
                 # manda P pra fila de bloqueados (setando nele o time_to_wait)
