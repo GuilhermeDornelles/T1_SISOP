@@ -22,6 +22,7 @@ class RRScheduler(Scheduler):
         self.HP_ready_queue = Queue()
         self.MP_ready_queue = Queue()
         self.LP_ready_queue = Queue()
+        # TODO botar essa fila no Scheduler, pq pode ser usada no SJF tambem
         self.blocked_queue = Queue()
         
     def schedule(self):
