@@ -1,48 +1,85 @@
-def next_step(scheduler):
-    scheduler.pc = scheduler.pc.next
+from entities.InstructionData import InstructionData
+from entities.enums.ReturnCode import SyscallType
 
-def add(scheduler, value):
-    scheduler.acc += value
-    next_step(scheduler)
+def next_step(instruction_data : InstructionData):
+    instruction_data.pc = instruction_data.pc.next
 
-def sub(scheduler, value):
-    scheduler.acc -= value
-    next_step(scheduler)
+def add(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    instruction_data.acc = str(int(instruction_data.acc) + int(value))
+    next_step(instruction_data)
 
-def mult(scheduler, value):
-    scheduler.acc *= value
-    next_step(scheduler)
+def sub(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    instruction_data.acc = str(int(instruction_data.acc) - int(value))
+    next_step(instruction_data)
 
-def div(scheduler, value):
-    scheduler.acc /= value
-    next_step(scheduler)
+def mult(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    instruction_data.acc = str(int(instruction_data.acc) * int(value))
+    next_step(instruction_data)
 
-def load(scheduler, value):
-    scheduler.acc = value
-    next_step(scheduler)
+def div(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    instruction_data.acc = str(int(instruction_data.acc) // int(value))
+    next_step(instruction_data)
 
-def store(scheduler, value):
-    scheduler.data[value] = scheduler.acc
-    next_step(scheduler)
+def load(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    instruction_data.acc = value
+    next_step(instruction_data)
 
-def brany(scheduler, value):
-    scheduler.pc = scheduler.flags[value]
+def store(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    instruction_data.data[value] = instruction_data.acc
+    next_step(instruction_data)
 
-def brpos(scheduler, value):
-    if scheduler.acc > 0:
-    	scheduler.pc = scheduler.flags[value]
+def brany(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    instruction_data.pc = instruction_data.flags[value]
 
-def brzero(scheduler, value):
-    if scheduler.acc == 0:
-    	scheduler.pc = scheduler.flags[value]
+def brpos(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    if int(instruction_data.acc) > 0:
+    	instruction_data.pc = instruction_data.flags[value]
 
-def brneg(scheduler, value):
-    if scheduler.acc < 0:
-    	scheduler.pc = scheduler.flags[value]
+def brzero(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    if int(instruction_data.acc) == 0:
+    	instruction_data.pc = instruction_data.flags[value]
 
-def syscall(scheduler, value):
-    scheduler.syscall(value)
-    next_step(scheduler)
+def brneg(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    if int(instruction_data.acc) < 0:
+    	instruction_data.pc = instruction_data.flags[value]
+
+def syscall(instruction_data : InstructionData):
+    value = instruction_data.pc.value
+    syscall(value)
+    if value == 0:
+        print("SYSCALL 0")
+        print("Exiting...")
+        return SyscallType.EXIT
+    elif value == 1:
+        print("SYSCALL 1")
+        print(f"ACC = {instruction_data.acc}")
+        return SyscallType.OUTPUT
+    elif value == 2:
+        print("SYSCALL 2")
+        valid_value = False
+        new_acc = 0
+        while not valid_value:
+            try:
+                input_raw = input("Insira o novo valor para o acumulador (numero inteiro): ")
+                new_acc = int(input_raw)
+                valid_value = True
+            except:
+                print("Valor inserido invalido. Tente novamente.")
+                valid_value = False
+
+        instruction_data.acc = new_acc
+        return SyscallType.INPUT
+    next_step(instruction_data)
 
 constants = {
     'ADD': add,

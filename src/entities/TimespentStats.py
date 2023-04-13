@@ -19,7 +19,7 @@ class TimespentStats:
         self.time_running = []
         self.time_blocked = []
     
-    def setTurnaroundTime(self):
+    def set_turnaround_time(self):
         # pega o primeiro instante que foi pra READY
         primeiro_ready, bla = self.time_ready[0]
         # o ultimo instante que saiu de RUNNING (instante que acabou de rodar a ultima instrucao)
@@ -29,28 +29,28 @@ class TimespentStats:
     # addTimeEnter vai adicionar uma tupla (tempo_que_entrou , None) no fim da lista
     # addTimeExit vai substituir o None da ultima posicao da lista (que vai estar (tempo_que_entrou, None)) pelo tempo que saiu do estado
 
-    def addTimeEnterRunning(self, time : int):
+    def add_time_enter_running(self, time : int):
         self.time_running.append((time, None))
 
-    def addTimeExitRunning(self, time : int):
+    def add_time_exit_running(self, time : int):
         enter, bla = self.time_running[-1]
         self.time_running[-1] = (enter, time)
 
-    def addTimeEnterReady(self, time : int):
+    def add_time_enter_ready(self, time : int):
         self.time_ready.append((time, None))
 
-    def addTimeExitReady(self, time : int):
+    def add_time_exit_ready(self, time : int):
         enter, bla = self.time_ready[-1]
         self.time_ready[-1] = (enter, time)
     
-    def addTimeEnterBlocked(self, time : int):
+    def add_time_enter_blocked(self, time : int):
         self.time_blocked.append((time, None))
 
-    def addTimeExitBlocked(self, time : int):
+    def add_time_exit_blocked(self, time : int):
         enter, bla = self.time_blocked[-1]
         self.time_blocked[-1] = (enter, time)
 
-    def defineFinalTimes(self):
+    def define_final_times(self):
         self.final_time_ready = self._auxCalculusFinalTime(field=self.time_ready)
         self.final_time_running = self._auxCalculusFinalTime(field=self.time_running)
         self.final_time_blocked = self._auxCalculusFinalTime(field=self.time_blocked)

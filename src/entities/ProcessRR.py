@@ -14,11 +14,11 @@ class ProcessRR(Process):
     
     def get_priority_as_num(self):
         match self.priority:
-            case Priorities.HIGH_PRIORITY:
+            case Priorities.HIGH:
                 return 2
-            case Priorities.MEDIUM_PRIORITY:
+            case Priorities.MEDIUM:
                 return 1
-            case Priorities.LOW_PRIORITY:
+            case Priorities.LOW:
                 return 0
         return 0
     

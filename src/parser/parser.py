@@ -39,7 +39,7 @@ class Parser:
 						)
 
 					if last is None:
-						self.program.pc = mnemonic
+						self.program.root = mnemonic
 					else:
 						last.next = mnemonic
 

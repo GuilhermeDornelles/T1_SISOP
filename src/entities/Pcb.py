@@ -24,62 +24,61 @@ class PCB:
         self.time_stats = TimespentStats()
         self.state = None
 
-    def initProcess(self, instant_time : int):
-        self._initState(States.READY, instant_time)
+    def init_process(self, instant_time : int):
+        self._init_state(States.READY, instant_time)
         self.time_to_wait = 0
 
-    def blockProcess(self, instant_time, time_to_wait=8):
+    def block_process(self, instant_time : int, time_to_wait=8):
         self.time_to_wait = time_to_wait
-        self._updateState(States.BLOCKED, instant_time)
-        # TODO: Ver o que mais vai acontecer quando um processo for bloqueado
+        self._update_state(States.BLOCKED, instant_time)
 
-    def unblockProcess(self, instant_time : int, new_state=States.READY, ):
+    def unblock_process(self, instant_time : int, new_state=States.READY, ):
         self.time_to_wait = 0
         # Novo estado pode ser READY, ou outro; por isso pode receber por parametro
-        self._updateState(new_state=new_state, instant_time=instant_time)
+        self._update_state(new_state=new_state, instant_time=instant_time)
         # TODO: Ver o que mais vai acontecer quando um processo for desbloqueado
 
-    def decreaseTimeToWait(self):
+    def decrease_time_to_wait(self):
         self.time_to_wait -= 1
 
     def update(self, new_pc : Mnemonic, new_acc : int, new_state = States.READY):
         self.pc = new_pc
         self.acc = new_acc
-        self._updateState(new_state)
+        self._update_state(new_state)
 
-    def _initState(self, new_state : States, instant_time : int):
+    def _init_state(self, new_state : States, instant_time : int):
         if self.state is None:
-            self.time_stats.addTimeEnterReady(time=instant_time)
+            self.time_stats.add_time_enter_ready(time=instant_time)
             self.state = States.READY
         else:
-            self._updateState(new_state, instant_time)
+            self._update_state(new_state, instant_time)
 
-    def _updateState(self, new_state : States, instant_time : int):
+    def _update_state(self, new_state : States, instant_time : int):
         if new_state == States.BLOCKED:
             # P ta saindo de RUNNING e entrando em BLOCKED
-            self.time_stats.addTimeExitRunning(time=instant_time)
-            self.time_stats.addTimeEnterBlocked(time=instant_time)
+            self.time_stats.add_time_exit_running(time=instant_time)
+            self.time_stats.add_time_enter_blocked(time=instant_time)
 
         elif new_state == States.READY:
             # P ta saindo ou de BLOCKED ou de RUNNING e entrando em READY
             if self.state == States.BLOCKED:
-                self.time_stats.addTimeExitBlocked(time=instant_time)
+                self.time_stats.add_time_exit_blocked(time=instant_time)
             elif self.state == States.RUNNING:
-                self.time_stats.addTimeExitRunning(time=instant_time)
+                self.time_stats.add_time_exit_running(time=instant_time)
 
-            self.time_stats.addTimeEnterReady(time=instant_time)
+            self.time_stats.add_time_enter_ready(time=instant_time)
 
         elif new_state == States.RUNNING:
             # P ta saindo de READY e entrando em RUNNING
-            self.time_stats.addTimeExitReady(time=instant_time)
-            self.time_stats.addTimeEnterRunning(time=instant_time)
+            self.time_stats.add_time_exit_ready(time=instant_time)
+            self.time_stats.add_time_enter_running(time=instant_time)
 
         elif new_state == States.EXIT:
             # saindo de RUNNING entrando em EXIT
-            self.time_stats.addTimeExitRunning(time=instant_time)
+            self.time_stats.add_time_exit_running(time=instant_time)
             # definimos os tempos finais de cada estado e turnaround_time
-            self.time_stats.defineFinalTimes()
-            self.time_stats.setTurnaroundTime()
+            self.time_stats.define_final_times()
+            self.time_stats.set_turnaround_time()
 
         # finalmente trocamos o status atual pro novo
         self.state = new_state

@@ -1,9 +1,12 @@
+import random
 from entities.Queue import Queue
 from entities.Process import Process
 from entities.ProcessRR import ProcessRR
 from entities.Scheduler import Scheduler
 from entities.enums.Priorities import Priorities
 from entities.enums.States import States
+from entities.InstructionData import InstructionData
+from entities.enums.ReturnCode import ReturnCode
 
 class RRScheduler(Scheduler):
     # Cada uma dessas é a fila de prontos separada pro prioridade; quem vai gerenciar elas vai ser o escalonador dai
@@ -23,8 +26,8 @@ class RRScheduler(Scheduler):
         
     def schedule(self):
         current_processing_time = 0
-        acc_atual = 0
         pc_atual = None
+        acc_atual = 0
         while not self.can_schedule_end():
             current_processing_time += 1
             # Incrementamos 1 no clock
@@ -36,6 +39,8 @@ class RRScheduler(Scheduler):
 
             if self.running_p is None: # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
                 self.running_p = self.switch_processes()
+                # TODO logica pra, o que fazer caso nao exista nenhum P pronto
+                # running_p estaria None ainda. PS.: certeza que vai quebrar
                 current_processing_time = 1
                 acc_atual = self.running_p.pcb.acc
                 pc_atual = self.running_p.pcb.pc
@@ -47,31 +52,43 @@ class RRScheduler(Scheduler):
                 pc_atual = self.running_p.pcb.pc
                 acc_atual = self.running_p.pcb.acc
             
-            # se o mesmo processo continuar com o escalonador, roda normal
-            # TODO definir como vamos executar uma instrução desse P
+            # TODO testar toda essa parte da logica abaixo, ate o fim do schedule()
             
-            # executar a instrucao que está no PC
-            pc_atual, acc_atual = pc_atual.function(pc_atual, acc_atual)
+            data = InstructionData(
+                        pc=pc_atual,
+                        acc=acc_atual,
+                        data=self.running_p.pcb.program.data,
+                        flags=self.running_p.pcb.program.flags
+                    )
+            return_type = pc_atual.function(data)
 
-            # se instrucao for I/O SYSCANLL 1 ou 2
-                # faz o I/O, atualizando o acc
-                # manda P pra fila de bloqueados (setando nele o time_to_wait)
-                # atualizar o acc (com base na instrucao)
+            pc_atual = data.pc
+            acc_atual = data.acc
             
-            # se instrucao for SYSCALL 0,
-            self.exit_process(self.running_p)
-            self.running_p = None
+            if return_type and return_type == ReturnCode.EXIT:
+                # se instrucao for SYSCALL 0
+                self.exit_process(self.running_p)
+                self.running_p = None
+            elif return_type and (return_type == ReturnCode.OUTPUT or return_type == ReturnCode.INPUT):
+                self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, new_state=States.BLOCKED)
+                self.block_process(process=self.running_p, curr_time=self.clock)
+            
 
     def unblock_process(self, process: Process, curr_time : int):
-        process.pcb.unblockProcess(instant_time=curr_time)
+        process.pcb.unblock_process(instant_time=curr_time)
         self._add_to_proper_ready_queue(process)
+
+    def block_process(self, process: Process, curr_time : int):
+        time = random.randint(8, 10)
+        process.pcb.block_process(instant_time=curr_time, time_to_wait=time)
+        self.blocked_queue.push(process)
 
     def update_blocked_queue(self, curr_time):
         print("update blocked queue {}".format(curr_time))
         self.blocked_queue.sort_blocked_queue_by_priority()
         for process in self.blocked_queue.processes:
             if(process.pcb.time_to_wait > 0):
-                process.pcb.decreaseTimeToWait()
+                process.pcb.decrease_time_to_wait()
             else:
                 self.unblock_process(process, curr_time)
                 
@@ -79,14 +96,14 @@ class RRScheduler(Scheduler):
         print("update ready queues {}".format(curr_time))
         arriving_processes = self.get_arriving_processes()
         for process in arriving_processes:
-            process.pcb.initProcess(curr_time)
+            process.pcb.init_process(curr_time)
             self._add_to_proper_ready_queue(process)
 
     def exist_higher_priority_process_ready(self) -> bool:
         current_priority = self.running_p.priority
-        if current_priority != Priorities.HIGH_PRIORITY and not self.HP_ready_queue.is_empty():
+        if current_priority != Priorities.HIGH and not self.HP_ready_queue.is_empty():
             return True
-        elif current_priority == Priorities.LOW_PRIORITY and not self.MP_ready_queue.is_empty():
+        elif current_priority == Priorities.LOW and not self.MP_ready_queue.is_empty():
             return True
         # se chegar aqui é pq current é LP com HP e MP vazios, ou HP, ou MP com HP vazio
         return False
@@ -105,9 +122,9 @@ class RRScheduler(Scheduler):
             return None
     
     def _add_to_proper_ready_queue(self, process : Process):
-        if process.priority == Priorities.HIGH_PRIORITY:
+        if process.priority == Priorities.HIGH:
             self.HP_ready_queue.push(process)
-        elif process.priority == Priorities.MEDIUM_PRIORITY:
+        elif process.priority == Priorities.MEDIUM:
             self.MP_ready_queue.push(process)
-        elif process.prioriry == Priorities.LOW_PRIORITY:
+        elif process.prioriry == Priorities.LOW:
             self.LP_ready_queue.push(process)
