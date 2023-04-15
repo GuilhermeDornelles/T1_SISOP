@@ -1,32 +1,37 @@
 from entities.InstructionData import InstructionData
-from entities.enums.ReturnCode import SyscallType
+from entities.enums.ReturnCode import ReturnCode
 
 def next_step(instruction_data : InstructionData):
     instruction_data.pc = instruction_data.pc.next
 
-def add(instruction_data : InstructionData):
+def transform_value(instruction_data : InstructionData) -> str:
     value = instruction_data.pc.value
+    if value[0] != '#' and instruction_data.data[value]:
+        value = str(instruction_data.data[value])
+    return value.replace('#', '')
+
+def add(instruction_data : InstructionData):
+    value = transform_value(instruction_data)
     instruction_data.acc = str(int(instruction_data.acc) + int(value))
     next_step(instruction_data)
 
 def sub(instruction_data : InstructionData):
-    value = instruction_data.pc.value
+    value = transform_value(instruction_data)
     instruction_data.acc = str(int(instruction_data.acc) - int(value))
     next_step(instruction_data)
 
 def mult(instruction_data : InstructionData):
-    value = instruction_data.pc.value
+    value = transform_value(instruction_data)
     instruction_data.acc = str(int(instruction_data.acc) * int(value))
     next_step(instruction_data)
 
 def div(instruction_data : InstructionData):
-    value = instruction_data.pc.value
+    value = transform_value(instruction_data)
     instruction_data.acc = str(int(instruction_data.acc) // int(value))
     next_step(instruction_data)
 
-def load(instruction_data : InstructionData):
-    value = instruction_data.pc.value
-    instruction_data.acc = value
+def load(instruction_data : InstructionData): 
+    instruction_data.acc = transform_value(instruction_data)
     next_step(instruction_data)
 
 def store(instruction_data : InstructionData):
@@ -55,16 +60,14 @@ def brneg(instruction_data : InstructionData):
 
 def syscall(instruction_data : InstructionData):
     value = instruction_data.pc.value
-    syscall(value)
-    if value == 0:
+    if value == "0":
         print("SYSCALL 0")
-        print("Exiting...")
-        return SyscallType.EXIT
-    elif value == 1:
+        return ReturnCode.EXIT
+    elif value == "1":
         print("SYSCALL 1")
         print(f"ACC = {instruction_data.acc}")
-        return SyscallType.OUTPUT
-    elif value == 2:
+        return ReturnCode.OUTPUT
+    elif value == "2":
         print("SYSCALL 2")
         valid_value = False
         new_acc = 0
@@ -78,7 +81,7 @@ def syscall(instruction_data : InstructionData):
                 valid_value = False
 
         instruction_data.acc = new_acc
-        return SyscallType.INPUT
+        return ReturnCode.INPUT
     next_step(instruction_data)
 
 constants = {

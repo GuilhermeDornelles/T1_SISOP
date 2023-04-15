@@ -20,15 +20,15 @@ class Scheduler:
         self.clock += 1
 
     def get_arriving_processes(self) -> list[Process]:
-        arriving_processes = []
+        curr_arriving = []
         temp_list = self.processes_to_arrive
         for process in temp_list:
             if process.arrival_time <= self.clock:
-                arriving_processes.append(process)
+                curr_arriving.append(process)
                 self.processes_to_arrive.remove(process)
             else:
-                return arriving_processes
-        return arriving_processes
+                return curr_arriving
+        return curr_arriving
     
     def exit_process(self, process : Process):
         self.exit_list.append(process)

@@ -10,4 +10,4 @@ class Process:
         self.pcb = PCB(pid, source_file)
 
     def __str__(self):
-        return f"Process(arrival_time={self.arrival_time}, PCB={self.pcb})"
+        return f"Process(arrival_time={self.arrival_time}, PCB=({self.pcb}))"

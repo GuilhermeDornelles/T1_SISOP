@@ -7,5 +7,10 @@ class Program:
 	data : dict[str, int]
 	flags : dict[str, Mnemonic]
 
+	def __init__(self):
+		self.root = None
+		self.data = dict()
+		self.flags = dict()
+
 	def __str__(self) -> str:
-		return f"root={self.root}, data={self.data}, flags{self.flags}"
+		return f"root={self.root}, data={self.data}, flags=''"

@@ -23,6 +23,7 @@ class PCB:
         self.pc = self.program.root
         self.time_stats = TimespentStats()
         self.state = None
+        self.time_to_wait = 0
 
     def init_process(self, instant_time : int):
         self._init_state(States.READY, instant_time)
@@ -41,10 +42,10 @@ class PCB:
     def decrease_time_to_wait(self):
         self.time_to_wait -= 1
 
-    def update(self, new_pc : Mnemonic, new_acc : int, new_state = States.READY):
+    def update(self, new_pc : Mnemonic, new_acc : int, instant_time : int, new_state = States.READY):
         self.pc = new_pc
         self.acc = new_acc
-        self._update_state(new_state)
+        self._update_state(new_state, instant_time)
 
     def _init_state(self, new_state : States, instant_time : int):
         if self.state is None:
@@ -84,4 +85,4 @@ class PCB:
         self.state = new_state
 
     def __str__(self):
-        return f"PCB(pid={self.pid}, state={self.state}, source_file={self.source_file}, PC={self.program.pc}, acc={self.program.acc}, time_to_wait={self.time_to_wait})"
+        return f"pid={self.pid}, state={self.state}, source_file={self.source_file}, PC=({self.pc}), acc={self.acc}, time_to_wait={self.time_to_wait}, program=({self.program})"
