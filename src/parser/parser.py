@@ -26,6 +26,7 @@ class Parser:
 						line = line.split(':')
 						self.program.flags[line[0]] = None
 						flag = line[0]
+						mnemonic = None
 					else:
 						# caso for comando normal
 						cmd_name = line.split(' ')[0].upper()
@@ -41,13 +42,16 @@ class Parser:
 					if last is None:
 						self.program.root = mnemonic
 					else:
-						last.next = mnemonic
+						if mnemonic is not None:
+							last.next = mnemonic
 
-					if flag:
+					if flag and mnemonic is not None:
 						self.program.flags[flag] = mnemonic
 						flag = False
 
-					last = mnemonic
+					if not flag:
+						last = mnemonic
+
 					i+=1
 					line = lines[i].strip()
 					

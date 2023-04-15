@@ -84,5 +84,14 @@ class PCB:
         # finalmente trocamos o status atual pro novo
         self.state = new_state
 
+    def is_ready(self):
+        return self.state == States.READY
+
+    def is_running(self):
+        return self.state == States.RUNNING
+
+    def is_exited(self):
+        return self.state == States.EXIT
+
     def __str__(self):
         return f"pid={self.pid}, state={self.state}, source_file={self.source_file}, PC=({self.pc}), acc={self.acc}, time_to_wait={self.time_to_wait}, program=({self.program})"

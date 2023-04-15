@@ -66,6 +66,7 @@ def syscall(instruction_data : InstructionData):
     elif value == "1":
         print("SYSCALL 1")
         print(f"ACC = {instruction_data.acc}")
+        next_step(instruction_data)
         return ReturnCode.OUTPUT
     elif value == "2":
         print("SYSCALL 2")
@@ -76,13 +77,13 @@ def syscall(instruction_data : InstructionData):
                 input_raw = input("Insira o novo valor para o acumulador (numero inteiro): ")
                 new_acc = int(input_raw)
                 valid_value = True
-            except:
+            except ValueError:
                 print("Valor inserido invalido. Tente novamente.")
                 valid_value = False
 
         instruction_data.acc = new_acc
+        next_step(instruction_data)
         return ReturnCode.INPUT
-    next_step(instruction_data)
 
 constants = {
     'ADD': add,

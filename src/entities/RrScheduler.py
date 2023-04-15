@@ -38,7 +38,7 @@ class RRScheduler(Scheduler):
             self.update_ready_queues(curr_time=self.clock)
             self.update_blocked_queue(curr_time=self.clock)
 
-            if self.running_p is None: # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
+            if self.running_p is None or not self.running_p.pcb.is_ready() and not self.running_p.pcb.is_running() or self.running_p.pcb.is_exited(): # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
                 new_p = self.switch_processes()
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
@@ -60,7 +60,6 @@ class RRScheduler(Scheduler):
                 pc_atual = self.running_p.pcb.pc
                 acc_atual = self.running_p.pcb.acc
 
-            # TODO ta traando quando faz SYSCALL 2, provavelmente nao ta atualizando o pc pro next
             data = InstructionData(
                         pc=pc_atual,
                         acc=acc_atual,
@@ -70,25 +69,34 @@ class RRScheduler(Scheduler):
             return_type = pc_atual.function(data)
 
             acc_atual = data.acc
-            print(f"ACC dps de rodar o pc atual: {acc_atual} PC atual: {pc_atual}")
+            print(f'Process PID={self.running_p.pcb.pid}')
             pc_atual = data.pc
             
-            if return_type and return_type == ReturnCode.EXIT:
-                self.exit_process(self.running_p)
-                self.running_p = None
-            elif return_type and (return_type == ReturnCode.OUTPUT or return_type == ReturnCode.INPUT):
-                self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, instant_time=self.clock, new_state=States.BLOCKED)
-                self.block_process(process=self.running_p, curr_time=self.clock)
-
+            if return_type is not None:
+                if return_type == ReturnCode.EXIT:
+                    self.exit_process(self.running_p)
+                    self.running_p = None
+                elif return_type == ReturnCode.OUTPUT or return_type == ReturnCode.INPUT:
+                    self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, instant_time=self.clock, new_state=States.BLOCKED)
+                    self.block_process(process=self.running_p, curr_time=self.clock)
 
     def unblock_process(self, process: Process, curr_time : int):
         process.pcb.unblock_process(instant_time=curr_time)
+        self.blocked_queue.processes.remove(process)
         self._add_to_proper_ready_queue(process)
 
     def block_process(self, process: Process, curr_time : int):
         time = random.randint(8, 10)
         process.pcb.block_process(instant_time=curr_time, time_to_wait=time)
         self.blocked_queue.push(process)
+        if(process in self.HP_ready_queue.processes):
+            self.HP_ready_queue.processes.remove(process)
+            
+        elif(process in self.MP_ready_queue.processes):
+            self.MP_ready_queue.processes.remove(process)
+            
+        elif(process in self.LP_ready_queue.processes):
+            self.LP_ready_queue.processes.remove(process)
 
     def update_blocked_queue(self, curr_time):
         self.blocked_queue.sort_blocked_queue_by_priority()
@@ -96,6 +104,7 @@ class RRScheduler(Scheduler):
             if(process.pcb.time_to_wait > 0):
                 process.pcb.decrease_time_to_wait()
             else:
+                print(f'Unblock process pid={process.pcb.pid} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
                 self.unblock_process(process, curr_time)
                 
     def update_ready_queues(self, curr_time : int):
@@ -116,10 +125,13 @@ class RRScheduler(Scheduler):
     def switch_processes(self) -> ProcessRR:
         # Retorna o proximo processo que deve executar
         if not self.HP_ready_queue.is_empty():
+            print(f'SWITCHING PROCESS')
             return self.HP_ready_queue.pop()
         elif not self.MP_ready_queue.is_empty():
+            print(f'SWITCHING PROCESS')
             return self.MP_ready_queue.pop()
         elif not self.LP_ready_queue.is_empty():
+            print(f'SWITCHING PROCESS')
             return self.LP_ready_queue.pop()
         else:
             # Se chegarmos aqui é pq nao existe nenhum P pronto
