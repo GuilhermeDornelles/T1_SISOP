@@ -33,7 +33,6 @@ class TimespentStats:
         self.time_running.append((time, None))
 
     def add_time_exit_running(self, time : int):
-        print(f"t r {self.time_running}")
         enter, bla = self.time_running[-1]
         self.time_running[-1] = (enter, time)
 
@@ -65,4 +64,4 @@ class TimespentStats:
 
     def final_times(self) -> str:
         self.define_final_times()
-        return f"final_time_ready={self.final_time_ready}, final_time_blocked={self.final_time_blocked}, final_time_running={self.final_time_running}"
+        return f"Total time ready={self.final_time_ready}, Total time blocked={self.final_time_blocked}, Total time running={self.final_time_running}"

@@ -32,12 +32,10 @@ class RRScheduler(Scheduler):
         acc_atual = 0
         while not self.can_schedule_end():
             current_processing_time += 1
-            # Incrementamos 1 no clock
             self.increment_clock()
             super_print(f"TIME {self.clock}")
             # Atualizando as filas de prontos com os novos processos chegando (no instante de tempo atual)
             self.update_ready_queues(curr_time=self.clock)
-
             self.update_blocked_queue(curr_time=self.clock)
 
             if self.running_p is None: # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
@@ -45,20 +43,24 @@ class RRScheduler(Scheduler):
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
                     continue
-                self.running_p = new_p
-                super_print(f"ESCALONOU P com ID: {self.running_p.pcb.pid}")
+
+                self.schedule_process(new_p, self.clock)
+                
                 current_processing_time = 1
                 acc_atual = self.running_p.pcb.acc
                 pc_atual = self.running_p.pcb.pc
             elif self.exist_higher_priority_process_ready() or (current_processing_time > self.running_p.quantum):
                 self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, instant_time=self.clock, new_state=States.READY)
-                self.running_p = self.switch_processes()
-                super_print(f"ESCALONOU P com ID: {self.running_p.pcb.pid}")
+                new_p = self.switch_processes()
+                if not new_p:
+                    print("nenhum P novo, nada para escalonar: ", new_p)
+                    continue
+                self.schedule_process(new_p, self.clock)
                 current_processing_time = 1
                 pc_atual = self.running_p.pcb.pc
                 acc_atual = self.running_p.pcb.acc
-            # TODO testar toda essa parte da logica abaixo, ate o fim do schedule()
-            print(f"ACC atual: {acc_atual} PC atual: {pc_atual}")
+
+            # TODO ta traando quando faz SYSCALL 2, provavelmente nao ta atualizando o pc pro next
             data = InstructionData(
                         pc=pc_atual,
                         acc=acc_atual,
@@ -67,21 +69,18 @@ class RRScheduler(Scheduler):
                     )
             return_type = pc_atual.function(data)
 
-            pc_atual = data.pc
             acc_atual = data.acc
+            print(f"ACC dps de rodar o pc atual: {acc_atual} PC atual: {pc_atual}")
+            pc_atual = data.pc
             
             if return_type and return_type == ReturnCode.EXIT:
-                # se instrucao for SYSCALL 0
-                # TODO comandos pra printar os stats do Processo quando ele vai pra exit
-                # chamar o time_stats da PCB do processo
-                super_print(f"EXITING P ID: {self.running_p.pcb.pid}")
-                super_print(self.running_p.pcb.time_stats.final_times())
                 self.exit_process(self.running_p)
                 self.running_p = None
             elif return_type and (return_type == ReturnCode.OUTPUT or return_type == ReturnCode.INPUT):
                 self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, instant_time=self.clock, new_state=States.BLOCKED)
                 self.block_process(process=self.running_p, curr_time=self.clock)
-    
+
+
     def unblock_process(self, process: Process, curr_time : int):
         process.pcb.unblock_process(instant_time=curr_time)
         self._add_to_proper_ready_queue(process)
@@ -126,7 +125,7 @@ class RRScheduler(Scheduler):
             # Se chegarmos aqui é pq nao existe nenhum P pronto
             # TODO definir o que acontece nesse caso
             return None
-    
+
     def _add_to_proper_ready_queue(self, process : Process):
         if process.priority == Priorities.HIGH:
             self.HP_ready_queue.push(process)
