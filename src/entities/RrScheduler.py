@@ -1,11 +1,12 @@
 import random
+from time import sleep
 from entities.Queue import Queue
 from entities.Process import Process
 from entities.ProcessRR import ProcessRR
 from entities.Scheduler import Scheduler
 from entities.enums.Priorities import Priorities
 from entities.enums.States import States
-from src.entities.Context import Context
+from entities.Context import Context
 from entities.enums.ReturnCode import ReturnCode
 from utils.utils import super_print
 
@@ -43,25 +44,33 @@ class RRScheduler(Scheduler):
                 new_p = self.switch_processes()
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
+                    sleep(3)
                     continue
 
-                self.schedule_process(new_p, self.clock)
-                
+                current_pc, current_acc = self.schedule_process(new_p, self.clock)
                 current_processing_time = 1
-                current_acc = self.running_p.pcb.acc
-                current_pc = self.running_p.pcb.pc
-            elif self.exist_higher_priority_process_ready() or (current_processing_time > self.running_p.quantum):
+            elif self.exist_higher_priority_process_ready():
+                self.running_p.pcb.update(new_pc=current_pc, new_acc=current_acc, instant_time=self.clock, new_state=States.READY)
+                new_p = self.switch_processes()
+                print(f"Novo processo com maior prioridade escalonado {new_p}")
+                sleep(3)
+                if not new_p:
+                    print("nenhum P novo, nada para escalonar: ", new_p)
+                    continue
+                current_pc, current_acc = self.schedule_process(new_p, self.clock)
+                current_processing_time = 1
+
+            elif (current_processing_time > self.running_p.quantum):
+                print(f"Chegou no limite do quantum = {current_processing_time}")
                 self.running_p.pcb.update(new_pc=current_pc, new_acc=current_acc, instant_time=self.clock, new_state=States.READY)
                 new_p = self.switch_processes()
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
+                    sleep(3)
                     continue
-                self.schedule_process(new_p, self.clock)
+                current_pc, current_acc = self.schedule_process(new_p, self.clock)
                 current_processing_time = 1
-                current_pc = self.running_p.pcb.pc
-                current_acc = self.running_p.pcb.acc
 
-            # TODO ta traando quando faz SYSCALL 2, provavelmente nao ta atualizando o pc pro next
             data = Context(
                         pc=current_pc,
                         acc=current_acc,
@@ -71,7 +80,7 @@ class RRScheduler(Scheduler):
             return_type = current_pc.function(data)
 
             current_acc = data.acc
-            print(f'Process PID={self.running_p.pcb.pid}')
+            print(f'Process PID={self.running_p.pcb.pid} with PC = {current_pc}')
             current_pc = data.pc
             
             if return_type is not None:
@@ -81,6 +90,7 @@ class RRScheduler(Scheduler):
                 elif return_type == ReturnCode.OUTPUT or return_type == ReturnCode.INPUT:
                     self.running_p.pcb.update(new_pc=current_pc, new_acc=current_acc, instant_time=self.clock, new_state=States.BLOCKED)
                     self.block_process(process=self.running_p, curr_time=self.clock)
+                    self.running_p = None
 
     def unblock_process(self, process: Process, curr_time : int):
         process.pcb.unblock_process(instant_time=curr_time)
@@ -89,6 +99,7 @@ class RRScheduler(Scheduler):
 
     def block_process(self, process: Process, curr_time : int):
         time = random.randint(8, 10)
+        super_print(f"Time to wait de PID {process.pcb.pid} = {time}")
         process.pcb.block_process(instant_time=curr_time, time_to_wait=time)
         self.blocked_queue.push(process)
         if(process in self.HP_ready_queue.processes):
@@ -106,7 +117,7 @@ class RRScheduler(Scheduler):
             if process.pcb.time_to_wait > 0:
                 process.pcb.decrease_time_to_wait()
             else:
-                print(f'Unblock process pid={process.pcb.pid} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
+                print(f'Unblock process pid={process.pcb.pid}')
                 self.unblock_process(process, curr_time)
                 
     def update_ready_queues(self, curr_time : int):
@@ -137,7 +148,6 @@ class RRScheduler(Scheduler):
             return self.LP_ready_queue.pop()
         else:
             # Se chegarmos aqui é pq nao existe nenhum P pronto
-            # TODO definir o que acontece nesse caso
             return None
 
     def _add_to_proper_ready_queue(self, process : Process):
@@ -145,5 +155,5 @@ class RRScheduler(Scheduler):
             self.HP_ready_queue.push(process)
         elif process.priority == Priorities.MEDIUM:
             self.MP_ready_queue.push(process)
-        elif process.prioriry == Priorities.LOW:
+        elif process.priority == Priorities.LOW:
             self.LP_ready_queue.push(process)

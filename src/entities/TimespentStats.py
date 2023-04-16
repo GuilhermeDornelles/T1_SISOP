@@ -64,4 +64,4 @@ class TimespentStats:
 
     def final_times(self) -> str:
         self.define_final_times()
-        return f"Total time ready={self.final_time_ready}, Total time blocked={self.final_time_blocked}, Total time running={self.final_time_running}"
+        return f"Total time ready={self.final_time_ready}, Total time blocked={self.final_time_blocked}, Total time running={self.final_time_running}\n=> Turnaround time={self.turnaround_time}"

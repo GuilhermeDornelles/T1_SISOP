@@ -12,22 +12,22 @@ def transform_value(context : Context) -> str:
 
 def add(context : Context):
     value = transform_value(context)
-    context.acc = str(int(context.acc) + int(value))
+    context.acc = int(context.acc) + int(value)
     next_step(context)
 
 def sub(context : Context):
     value = transform_value(context)
-    context.acc = str(int(context.acc) - int(value))
+    context.acc = int(context.acc) - int(value)
     next_step(context)
 
 def mult(context : Context):
     value = transform_value(context)
-    context.acc = str(int(context.acc) * int(value))
+    context.acc = int(context.acc) * int(value)
     next_step(context)
 
 def div(context : Context):
     value = transform_value(context)
-    context.acc = str(int(context.acc) // int(value))
+    context.acc = int(context.acc) // int(value)
     next_step(context)
 
 def load(context : Context): 
@@ -46,17 +46,24 @@ def brany(context : Context):
 def brpos(context : Context):
     value = context.pc.value
     if int(context.acc) > 0:
-    	context.pc = context.flags[value]
+        context.pc = context.flags[value]
+    else:
+        next_step(context)
 
 def brzero(context : Context):
     value = context.pc.value
+    # print(f"chamou o brzero: {context}")
     if int(context.acc) == 0:
-    	context.pc = context.flags[value]
+        context.pc = context.flags[value]
+    else:
+        next_step(context)
 
 def brneg(context : Context):
     value = context.pc.value
     if int(context.acc) < 0:
-    	context.pc = context.flags[value]
+        context.pc = context.flags[value]
+    else:
+        next_step(context)
 
 def syscall(context : Context):
     value = context.pc.value

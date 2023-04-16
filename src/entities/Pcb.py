@@ -55,7 +55,9 @@ class PCB:
             self._update_state(new_state, instant_time)
 
     def _update_state(self, new_state : States, instant_time : int):
-        if new_state == States.BLOCKED:
+        if new_state == self.state: # ja estou no novo state, nao precisa fazer nada
+            pass
+        elif new_state == States.BLOCKED:
             # P ta saindo de RUNNING e entrando em BLOCKED
             self.time_stats.add_time_exit_running(time=instant_time)
             self.time_stats.add_time_enter_blocked(time=instant_time)

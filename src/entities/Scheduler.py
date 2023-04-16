@@ -1,5 +1,6 @@
 from entities.Process import Process
 from entities.enums.States import States
+from parser.models.Mnemonic import Mnemonic
 from utils.utils import super_print
 
 class Scheduler:
@@ -15,8 +16,8 @@ class Scheduler:
     def __init__(self, processes : list[Process]):
         self.clock = -1
         processes.sort(key = lambda p : p.arrival_time)
-        self.all_processes_list = processes
-        self.processes_to_arrive = processes
+        self.all_processes_list = processes.copy()
+        self.processes_to_arrive = processes.copy()
         self.exit_list = []
         self.running_p = None
 
@@ -38,11 +39,12 @@ class Scheduler:
                 return curr_arriving
         return curr_arriving
 
-    def schedule_process(self, process : Process, instant_time : int):
+    def schedule_process(self, process : Process, instant_time : int) -> tuple[Mnemonic, int]:
         if process:
             self.running_p = process
             process.pcb.update(new_pc=process.pcb.pc, new_acc=process.pcb.acc, instant_time=instant_time, new_state=States.RUNNING)
             super_print(f"ESCALONOU P com ID: {self.running_p.pcb.pid}")
+        return process.pcb.pc, process.pcb.acc
 
     def exit_process(self, process : Process):
         process.pcb.update(new_pc=process.pcb.pc, new_acc=process.pcb.acc, instant_time=self.clock, new_state=States.EXIT)
