@@ -6,14 +6,21 @@
       "arrival_time": 0,
       "source_file": "./src/tests/prog1.txt",
       "quantum": 10,
-      "priority": 1
+      "priority": 2
     },
     {
       "pid": 1,
       "arrival_time": 2,
       "source_file": "./src/tests/prog2.txt",
-      "quantum": 100,
+      "quantum": 30,
       "priority": 0
+    },
+    {
+      "pid": 2,
+      "arrival_time": 5,
+      "source_file": "./src/tests/prog3.txt",
+      "quantum": 100,
+      "priority": 1
     }
   ]
 }

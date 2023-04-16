@@ -40,20 +40,19 @@ class RRScheduler(Scheduler):
             self.update_ready_queues(curr_time=self.clock)
             self.update_blocked_queue(curr_time=self.clock)
 
-            if self.running_p is None or not self.running_p.pcb.is_ready() and not self.running_p.pcb.is_running() or self.running_p.pcb.is_exited(): # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit
+            if self.running_p is None or (not self.running_p.pcb.is_ready() and not self.running_p.pcb.is_running() or self.running_p.pcb.is_exited()): # vai cair aqui se for a primeira iteracao, ou o ultimo running_p foi pra exit ou pra blocked
                 new_p = self.switch_processes()
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
-                    sleep(3)
                     continue
-
                 current_pc, current_acc = self.schedule_process(new_p, self.clock)
                 current_processing_time = 1
+
             elif self.exist_higher_priority_process_ready():
                 self.running_p.pcb.update(new_pc=current_pc, new_acc=current_acc, instant_time=self.clock, new_state=States.READY)
+                self._add_to_proper_ready_queue(self.running_p)
                 new_p = self.switch_processes()
-                print(f"Novo processo com maior prioridade escalonado {new_p}")
-                sleep(3)
+                print(f"P com prioridade escalonado PID={new_p.pcb.pid}")
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
                     continue
@@ -66,7 +65,7 @@ class RRScheduler(Scheduler):
                 new_p = self.switch_processes()
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
-                    sleep(3)
+
                     continue
                 current_pc, current_acc = self.schedule_process(new_p, self.clock)
                 current_processing_time = 1
