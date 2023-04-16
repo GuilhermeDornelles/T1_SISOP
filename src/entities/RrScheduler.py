@@ -5,7 +5,7 @@ from entities.ProcessRR import ProcessRR
 from entities.Scheduler import Scheduler
 from entities.enums.Priorities import Priorities
 from entities.enums.States import States
-from entities.InstructionData import InstructionData
+from src.entities.Context import Context
 from entities.enums.ReturnCode import ReturnCode
 from utils.utils import super_print
 
@@ -28,9 +28,10 @@ class RRScheduler(Scheduler):
         
     def schedule(self):
         current_processing_time = 0
-        pc_atual = None
-        acc_atual = 0
-        while not self.can_schedule_end():
+        current_pc = None
+        current_acc = 0
+
+        while not self.can_schedule_end:
             current_processing_time += 1
             self.increment_clock()
             super_print(f"TIME {self.clock}")
@@ -47,37 +48,38 @@ class RRScheduler(Scheduler):
                 self.schedule_process(new_p, self.clock)
                 
                 current_processing_time = 1
-                acc_atual = self.running_p.pcb.acc
-                pc_atual = self.running_p.pcb.pc
+                current_acc = self.running_p.pcb.acc
+                current_pc = self.running_p.pcb.pc
             elif self.exist_higher_priority_process_ready() or (current_processing_time > self.running_p.quantum):
-                self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, instant_time=self.clock, new_state=States.READY)
+                self.running_p.pcb.update(new_pc=current_pc, new_acc=current_acc, instant_time=self.clock, new_state=States.READY)
                 new_p = self.switch_processes()
                 if not new_p:
                     print("nenhum P novo, nada para escalonar: ", new_p)
                     continue
                 self.schedule_process(new_p, self.clock)
                 current_processing_time = 1
-                pc_atual = self.running_p.pcb.pc
-                acc_atual = self.running_p.pcb.acc
+                current_pc = self.running_p.pcb.pc
+                current_acc = self.running_p.pcb.acc
 
-            data = InstructionData(
-                        pc=pc_atual,
-                        acc=acc_atual,
+            # TODO ta traando quando faz SYSCALL 2, provavelmente nao ta atualizando o pc pro next
+            data = Context(
+                        pc=current_pc,
+                        acc=current_acc,
                         data=self.running_p.pcb.program.data,
                         flags=self.running_p.pcb.program.flags
                     )
-            return_type = pc_atual.function(data)
+            return_type = current_pc.function(data)
 
-            acc_atual = data.acc
+            current_acc = data.acc
             print(f'Process PID={self.running_p.pcb.pid}')
-            pc_atual = data.pc
+            current_pc = data.pc
             
             if return_type is not None:
                 if return_type == ReturnCode.EXIT:
                     self.exit_process(self.running_p)
                     self.running_p = None
                 elif return_type == ReturnCode.OUTPUT or return_type == ReturnCode.INPUT:
-                    self.running_p.pcb.update(new_pc=pc_atual, new_acc=acc_atual, instant_time=self.clock, new_state=States.BLOCKED)
+                    self.running_p.pcb.update(new_pc=current_pc, new_acc=current_acc, instant_time=self.clock, new_state=States.BLOCKED)
                     self.block_process(process=self.running_p, curr_time=self.clock)
 
     def unblock_process(self, process: Process, curr_time : int):
@@ -101,7 +103,7 @@ class RRScheduler(Scheduler):
     def update_blocked_queue(self, curr_time):
         self.blocked_queue.sort_blocked_queue_by_priority()
         for process in self.blocked_queue.processes:
-            if(process.pcb.time_to_wait > 0):
+            if process.pcb.time_to_wait > 0:
                 process.pcb.decrease_time_to_wait()
             else:
                 print(f'Unblock process pid={process.pcb.pid} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')

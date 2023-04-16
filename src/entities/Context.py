@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from parser.models.Mnemonic import Mnemonic
 
 @dataclass
-class InstructionData:
+class Context:
     pc : Mnemonic
     acc : int
     data : dict[str, int]

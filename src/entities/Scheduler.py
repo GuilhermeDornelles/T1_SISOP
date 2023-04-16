@@ -20,6 +20,10 @@ class Scheduler:
         self.exit_list = []
         self.running_p = None
 
+    @property
+    def can_schedule_end(self) -> bool:
+        return len(self.all_processes_list) == len(self.exit_list)
+
     def increment_clock(self):
         self.clock += 1
 
@@ -46,5 +50,4 @@ class Scheduler:
         super_print(process.pcb.time_stats.final_times())
         self.exit_list.append(process)
 
-    def can_schedule_end(self) -> bool:
-        return len(self.all_processes_list) == len(self.exit_list)
+    

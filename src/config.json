@@ -4,14 +4,14 @@
     {
       "pid": 0,
       "arrival_time": 0,
-      "source_file": "./tests/prog1.txt",
+      "source_file": "./src/tests/prog1.txt",
       "quantum": 10,
       "priority": 0
     },
     {
       "pid": 1,
       "arrival_time": 3,
-      "source_file": "./tests/prog2.txt",
+      "source_file": "./src/tests/prog2.txt",
       "quantum": 15,
       "priority": 1
     }
