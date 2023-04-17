@@ -17,12 +17,12 @@ def main():
 
 	print(f"Algo is {algorithm}")
 
-	escalonador_teste = SJFScheduler(processes_list)
-	escalonador_teste.schedule()
-
-	# escalonador_teste = RRScheduler(processes_list)
-	# escalonador_teste.schedule()
-
+	if algorithm == 'SJF':
+		scheduler = SJFScheduler(processes_list)
+		scheduler.schedule()
+	if algorithm == 'RR':
+		scheduler = RRScheduler(processes_list)
+		scheduler.schedule()
 
 if __name__ == "__main__":
     main()

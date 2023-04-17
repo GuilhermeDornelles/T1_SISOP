@@ -45,6 +45,7 @@ class SJFScheduler(Scheduler):
 
             if len(self.ready_queue) > 0:
                 self.running_p = self.ready_queue.pop(0)
+                self.running_p.pcb.update_state(self.clock, States.RUNNING)
                 print(f'(scheduled process) pid={self.running_p.pcb.pid}')
                 
                 acc = self.running_p.pcb.acc
@@ -56,7 +57,7 @@ class SJFScheduler(Scheduler):
 
                 # EXECUÇÃO DO PROCESSO
                 while not self.exist_process_with_lower_execution_time:
-                    print(f'(acc={acc}) executing: {pc}')
+                    print(f'(executing) process pid={self.running_p.pcb.pid}')
 
                     context = Context(
                         pc=pc,
@@ -81,15 +82,16 @@ class SJFScheduler(Scheduler):
                 if result == ReturnCode.EXIT:
                     print(f'(exiting process) pid={self.running_p.pcb.pid}')
                     self.exit_list.append(self.running_p)
+                    self.running_p.pcb.update_state(self.clock, States.EXIT)
+                    print(self.running_p.pcb.time_stats.final_times())
                 if result in [ReturnCode.INPUT, ReturnCode.OUTPUT]:
                     # Bloqueia processo
                     print(f'(blocking process) pid={self.running_p.pcb.pid}')
                     time_to_wait = random.randint(8, 10)
-                    self.running_p.pcb.state = States.BLOCKED
+                    self.running_p.pcb.block_process(self.clock, time_to_wait)
                     self.blocked_queue.append(self.running_p)
-                    self.running_p.pcb.time_to_wait = time_to_wait
                 if result is None:
-                    self.running_p.pcb.state = States.READY
+                    self.running_p.pcb.update_state(self.clock, States.READY)
                     self.ready_queue.append(self.running_p)
                     
                 # Atualiza contexto de execução na PCB
@@ -108,7 +110,7 @@ class SJFScheduler(Scheduler):
                 process.pcb.decrease_time_to_wait()
             else:
                 print(f'(process gone ready) pid={process.pcb.pid}')
-                process.pcb.state = States.READY
+                process.pcb.unblock_process(self.clock)
                 self.blocked_queue.remove(process)
                 self.ready_queue.append(process)
 
