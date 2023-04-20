@@ -16,5 +16,11 @@ class Queue:
     def pop(self) -> Process:
         return self.processes.pop(0)
     
+    def check_first(self) -> Process:
+        if self.processes[0]:
+            return self.processes[0]
+        else:
+            return None
+
     def sort_blocked_queue_by_priority(self):
         self.processes.sort(key = lambda process: (-process.get_priority_as_num(), process.pcb.time_to_wait))

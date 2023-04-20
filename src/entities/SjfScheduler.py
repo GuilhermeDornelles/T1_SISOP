@@ -83,6 +83,7 @@ class SJFScheduler(Scheduler):
                     print(f'(exiting process) pid={self.running_p.pcb.pid}')
                     self.exit_list.append(self.running_p)
                     self.running_p.pcb.update_state(self.clock, States.EXIT)
+                    print(f"ACC final => {self.running_p.pcb.acc}")
                     print(self.running_p.pcb.time_stats.final_times())
                 if result in [ReturnCode.INPUT, ReturnCode.OUTPUT]:
                     # Bloqueia processo

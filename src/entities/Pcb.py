@@ -37,7 +37,6 @@ class PCB:
         self.time_to_wait = 0
         # Novo estado pode ser READY, ou outro; por isso pode receber por parametro
         self._update_state(new_state=new_state, instant_time=instant_time)
-        # TODO: Ver o que mais vai acontecer quando um processo for desbloqueado
 
     def update_state(self, instant_time: int, new_state: States):
         self._update_state(new_state, instant_time)

@@ -5,8 +5,8 @@ from entities.SjfScheduler import SJFScheduler
 from utils.config_parser import parse_config_file
 
 def main():
-	config_file = "config_SJF.json"
-	#config_file = "config.json"
+	# config_file = "config_SJF.json"
+	config_file = "config.json"
 	script_path = os.path.abspath(__file__)
 	file_path = os.path.join(os.path.dirname(script_path), config_file)
 

@@ -49,7 +49,9 @@ class Scheduler:
     def exit_process(self, process : Process):
         process.pcb.update(new_pc=process.pcb.pc, new_acc=process.pcb.acc, instant_time=self.clock, new_state=States.EXIT)
         super_print(f"EXITING P ID: {process.pcb.pid}")
+        print(f"ACC final => {process.pcb.acc}")
         super_print(process.pcb.time_stats.final_times())
+
         self.exit_list.append(process)
 
     
